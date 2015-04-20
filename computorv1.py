@@ -7,20 +7,27 @@
 #    By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/04/20 15:46:41 by jaguillo          #+#    #+#              #
-#    Updated: 2015/04/20 19:56:12 by jaguillo         ###   ########.fr        #
+#    Updated: 2015/04/20 20:03:30 by jaguillo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 from sys import argv
 from re import compile
 
-# 5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0
-# 4 * X^0 + 4 * X^1 - 9.3 * X^2 = 0
-# 5 * X^0 + 4 * X^1 = 4 * X^0
-# 1 * X^0 + 4 * X^1 = 0
-# 8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0
-# 5 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 0
-# 5 + 4 * X + X^2= X^2
+#
+# ComputerV1
+#
+# ./computerv1.py <expression>
+#
+# Examples:
+#  5 * X^0 + 4 * X^1 - 9.3 * X^2 = 1 * X^0
+#  4 * X^0 + 4 * X^1 - 9.3 * X^2 = 0
+#  5 * X^0 + 4 * X^1 = 4 * X^0
+#  1 * X^0 + 4 * X^1 = 0
+#  8 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 3 * X^0
+#  5 * X^0 - 6 * X^1 + 0 * X^2 - 5.6 * X^3 = 0
+#  5 + 4 * X + X^2= X^2
+#
 
 class Polynom():
 
@@ -152,21 +159,6 @@ class Computer():
 			self.left.append(Polynom(None))
 		print("Reduced form: \033[36m" + self.toString() + "\033[39m")
 		return True
-
-#
-# Degree 1:
-#  ax + b = 0
-#  x = -b / a
-#
-# Degree 2:
-#  a * x^2 + b * x + c = 0
-#  d = b^2 - (4 * a * c)
-#  if d > 0
-#   x = (-b + (d ** 0.5)) / (2 * a)
-#   x = (-b - (d ** 0.5)) / (2 * a)
-#  else
-#   x = -b / (2 * a)
-#
 
 	def resolve(self):
 		degree = 0
