@@ -7,7 +7,7 @@
 #    By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/04/20 15:46:41 by jaguillo          #+#    #+#              #
-#    Updated: 2015/04/20 19:46:50 by jaguillo         ###   ########.fr        #
+#    Updated: 2015/04/20 19:56:12 by jaguillo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -106,12 +106,17 @@ class Computer():
 				continue
 			m = reg_polynom.match(eq, pos)
 			if m == None or len(m.group(0)) <= 0:
-				print("Unexpected syntax: '%s'" % (eq[pos:pos + 5]))
+				print("\033[31mUnexpected syntax: '%s'\033[39m" % (eq[pos:pos + 5]))
 				return False
 			try:
 				p = Polynom(m)
+				if p.sign == None:
+					if left and len(self.left) > 0:
+						p.sign = "+"
+					elif not left and len(self.right) > 0:
+						p.sign = "+"
 			except:
-				print("Invalid syntax: '%s'" % (eq[pos:pos + 5]))
+				print("\033[31mInvalid syntax: '%s'\033[39m" % (eq[pos:pos + 5]))
 				return False
 			if left:
 				self.left.append(p)
@@ -120,12 +125,12 @@ class Computer():
 			pos += len(m.group(0))
 		if len(self.left) == 0:
 			if len(self.right) == 0:
-				print("Bad argument")
+				print("\033[31mBad argument\033[39m")
 				return False
 			self.left.append(Polynom(None))
 		if len(self.right) == 0:
 			self.right.append(Polynom(None))
-		print("Equation: " + self.toString())
+		print("Equation: \033[36m" + self.toString() + "\033[39m")
 		return True
 
 	def reduce(self):
@@ -145,7 +150,7 @@ class Computer():
 		self.right = [Polynom(None)]
 		if len(self.left) == 0:
 			self.left.append(Polynom(None))
-		print("Reduced form: " + self.toString())
+		print("Reduced form: \033[36m" + self.toString() + "\033[39m")
 		return True
 
 #
@@ -168,13 +173,13 @@ class Computer():
 		for p in self.left:
 			if p.power > degree:
 				degree = p.power
-		print("Polynomial degree: %d" % degree)
+		print("Polynomial degree: \033[32m%d\033[39m" % degree)
 		if degree == 0:
 			a = self.left[0].getNum()
 			if a == 0:
-				print("Every real are solution")
+				print("\033[32mEvery real are solution\033[39m")
 			else:
-				print("No solution")
+				print("\033[31mNo solution\033[39m")
 			return False
 		elif degree == 1:
 			if len(self.left) > 1:
@@ -183,10 +188,10 @@ class Computer():
 			else:
 				b = 0
 				a = self.left[0].getNum()
-			print("a = " + str(a))
-			print("b = " + str(b))
+			print("\033[90ma = " + str(a) + "\033[39m")
+			print("\033[90mb = " + str(b) + "\033[39m")
 			print("The solution is:")
-			print("-b / a = " + str(-b / a))
+			print("\033[90m-b / a = \033[32m" + str(-b / a) + "\033[39m")
 		elif degree == 2:
 			if len(self.left) > 2:
 				c = self.left[0].getNum()
@@ -200,25 +205,25 @@ class Computer():
 				c = 0
 				b = 0
 				a = self.left[0].getNum()
-			print("a = " + str(a))
-			print("b = " + str(b))
-			print("c = " + str(c))
+			print("\033[90ma = " + str(a) + "\033[39m")
+			print("\033[90mb = " + str(b) + "\033[39m")
+			print("\033[90mc = " + str(c) + "\033[39m")
 			d = b ** 2 - (4 * a * c)
-			print("d = " + str(d))
+			print("\033[90md = " + str(d) + "\033[39m")
 			if d > 0:
 				print("Discriminant is strictly positive, the two solutions are:")
-				print("(-b - (d ** 0.5)) / (2 * a) = " + str((-b - (d ** 0.5)) / (2 * a)))
-				print("(-b + (d ** 0.5)) / (2 * a) = " + str((-b + (d ** 0.5)) / (2 * a)))
+				print("\033[90m(-b - (d ** 0.5)) / (2 * a) = \033[32m" + str((-b - (d ** 0.5)) / (2 * a)) + "\033[39m")
+				print("\033[90m(-b + (d ** 0.5)) / (2 * a) = \033[32m" + str((-b + (d ** 0.5)) / (2 * a)) + "\033[39m")
 			else:
 				if d == 0:
 					print("Discriminant is 0, the solution is:")
-					print("-b / (2 * a) = " + str(-b / (2 * a)))
+					print("\033[90m-b / (2 * a) = \033[32m" + str(-b / (2 * a)))
 				else:
 					print("Discriminant is strictly negative, the two solutions are:")
-					print("(-b - (d ** 0.5)) / (2 * a) = " + str((-b - (abs(d) ** 0.5)) / (2 * a)) + "i")
-					print("(-b + (d ** 0.5)) / (2 * a) = " + str((-b + (abs(d) ** 0.5)) / (2 * a)) + "i")
+					print("\033[90m(-b - (d ** 0.5)) / (2 * a) = \033[32m" + str((-b - (abs(d) ** 0.5)) / (2 * a)) + "i\033[39m")
+					print("\033[90m(-b + (d ** 0.5)) / (2 * a) = \033[32m" + str((-b + (abs(d) ** 0.5)) / (2 * a)) + "i\033[39m")
 		else:
-			print("The polynomial degree is stricly greater than 2, I can't solve.")
+			print("\033[31mThe polynomial degree is stricly greater than 2, I can't solve.\033[39m")
 			return False
 		return True
 
@@ -235,7 +240,7 @@ class Computer():
 
 
 if len(argv) <= 1:
-	print("Not enougth argument")
+	print("\033[31mNot enougth argument\033[39m")
 else:
 	c = Computer()
 	if not c.parse(argv[1]):
