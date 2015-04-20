@@ -7,7 +7,7 @@
 #    By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/04/20 15:46:41 by jaguillo          #+#    #+#              #
-#    Updated: 2015/04/20 18:35:49 by jaguillo         ###   ########.fr        #
+#    Updated: 2015/04/20 19:09:37 by jaguillo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,6 +55,11 @@ class Polynom():
 		if self.x and self.power == 0:
 			self.x = False
 
+	def getNum(self):
+		if self.sign == "-":
+			return -self.num
+		return self.num
+
 	def toString(self):
 		s = ""
 		if self.sign != None:
@@ -83,32 +88,30 @@ class Computer():
 
 	left = []
 	right = []
-	eq = None
 
-	def __init__(self, equation):
+	def __init__(self):
 		self.left = []
 		self.right = []
-		self.eq = equation
 
-	def parse(self):
+	def parse(self, eq):
 		pos = 0
 		left = True
-		while pos < len(self.eq):
-			if self.eq[pos:pos + 1] == "=" and left and len(self.left) > 0:
+		while pos < len(eq):
+			if eq[pos:pos + 1] == "=" and left and len(self.left) > 0:
 				left = False
 				pos += 1
-			m = reg_space.match(self.eq, pos)
+			m = reg_space.match(eq, pos)
 			if m != None:
 				pos += len(m.group(0))
 				continue
-			m = reg_polynom.match(self.eq, pos)
+			m = reg_polynom.match(eq, pos)
 			if m == None or len(m.group(0)) <= 0:
-				print("Unexpected syntax: '%s'" % (self.eq[pos:pos + 5]))
+				print("Unexpected syntax: '%s'" % (eq[pos:pos + 5]))
 				return False
 			try:
 				p = Polynom(m)
 			except:
-				print("Invalid syntax: '%s'" % (self.eq[pos:pos + 5]))
+				print("Invalid syntax: '%s'" % (eq[pos:pos + 5]))
 				return False
 			if left:
 				self.left.append(p)
@@ -145,13 +148,48 @@ class Computer():
 		print("Reduced form: " + self.toString())
 		return True
 
+#
+# Degree 1:
+#  ax + b = 0
+#  x = -b / a
+#
+# Degree 2:
+#  a * x^2 + b * x + c = 0
+#  d = b^2 - (4 * a * c)
+#  if d > 0
+#   x = (-b + (d ** 0.5)) / (2 * a)
+#   x = (-b - (d ** 0.5)) / (2 * a)
+#  else
+#   x = -b / (2 * a)
+#
+
 	def resolve(self):
 		degree = 0
 		for p in self.left:
 			if p.power > degree:
 				degree = p.power
 		print("Polynomial degree: %d" % degree)
-		if degree > 2:
+		if degree == 0:
+			print("The polynomial degree is 0, No solution")
+			return False
+		elif degree == 1:
+			b = self.left[0].getNum()
+			a = self.left[1].getNum()
+			print("The solution is:")
+			print(-b / a)
+		elif degree == 2:
+			c = self.left[0].getNum()
+			b = self.left[1].getNum()
+			a = self.left[2].getNum()
+			d = b ** 2 - (4 * a * c)
+			if d > 0:
+				print("Discriminant is strictly positive, the two solutions are:")
+				print((-b - (d ** 0.5)) / (2 * a))
+				print((-b + (d ** 0.5)) / (2 * a))
+			else:
+				print("The solution is:")
+				print(-b / (2 * a))
+		else:
 			print("The polynomial degree is stricly greater than 2, I can't solve.")
 			return False
 		return True
@@ -171,8 +209,8 @@ class Computer():
 if len(argv) <= 1:
 	print("Not enougth argument")
 else:
-	c = Computer(argv[1])
-	if not c.parse():
+	c = Computer()
+	if not c.parse(argv[1]):
 		exit(1)
 	if not c.reduce():
 		exit(1)
