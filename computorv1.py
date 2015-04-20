@@ -7,7 +7,7 @@
 #    By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/04/20 15:46:41 by jaguillo          #+#    #+#              #
-#    Updated: 2015/04/20 19:09:37 by jaguillo         ###   ########.fr        #
+#    Updated: 2015/04/20 19:46:50 by jaguillo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -80,7 +80,7 @@ class Polynom():
 		return s
 
 
-reg_polynom = compile('([-+=]?)\s*([0-9\.]+)?(\s*\*?\s*[xX](?:\^([0-9]+))?)?\s*')
+reg_polynom = compile('([-+=]?)\s*([0-9\.]+)?(\s*\*?\s*[xX](?:\s*\^\s*([0-9]+))?)?\s*')
 reg_space = compile('\s+')
 
 
@@ -170,25 +170,53 @@ class Computer():
 				degree = p.power
 		print("Polynomial degree: %d" % degree)
 		if degree == 0:
-			print("The polynomial degree is 0, No solution")
+			a = self.left[0].getNum()
+			if a == 0:
+				print("Every real are solution")
+			else:
+				print("No solution")
 			return False
 		elif degree == 1:
-			b = self.left[0].getNum()
-			a = self.left[1].getNum()
+			if len(self.left) > 1:
+				b = self.left[0].getNum()
+				a = self.left[1].getNum()
+			else:
+				b = 0
+				a = self.left[0].getNum()
+			print("a = " + str(a))
+			print("b = " + str(b))
 			print("The solution is:")
-			print(-b / a)
+			print("-b / a = " + str(-b / a))
 		elif degree == 2:
-			c = self.left[0].getNum()
-			b = self.left[1].getNum()
-			a = self.left[2].getNum()
+			if len(self.left) > 2:
+				c = self.left[0].getNum()
+				b = self.left[1].getNum()
+				a = self.left[2].getNum()
+			elif len(self.left) > 1:
+				c = 0
+				b = self.left[0].getNum()
+				a = self.left[1].getNum()
+			else:
+				c = 0
+				b = 0
+				a = self.left[0].getNum()
+			print("a = " + str(a))
+			print("b = " + str(b))
+			print("c = " + str(c))
 			d = b ** 2 - (4 * a * c)
+			print("d = " + str(d))
 			if d > 0:
 				print("Discriminant is strictly positive, the two solutions are:")
-				print((-b - (d ** 0.5)) / (2 * a))
-				print((-b + (d ** 0.5)) / (2 * a))
+				print("(-b - (d ** 0.5)) / (2 * a) = " + str((-b - (d ** 0.5)) / (2 * a)))
+				print("(-b + (d ** 0.5)) / (2 * a) = " + str((-b + (d ** 0.5)) / (2 * a)))
 			else:
-				print("The solution is:")
-				print(-b / (2 * a))
+				if d == 0:
+					print("Discriminant is 0, the solution is:")
+					print("-b / (2 * a) = " + str(-b / (2 * a)))
+				else:
+					print("Discriminant is strictly negative, the two solutions are:")
+					print("(-b - (d ** 0.5)) / (2 * a) = " + str((-b - (abs(d) ** 0.5)) / (2 * a)) + "i")
+					print("(-b + (d ** 0.5)) / (2 * a) = " + str((-b + (abs(d) ** 0.5)) / (2 * a)) + "i")
 		else:
 			print("The polynomial degree is stricly greater than 2, I can't solve.")
 			return False
