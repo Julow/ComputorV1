@@ -7,7 +7,7 @@
 #    By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/04/20 15:46:41 by jaguillo          #+#    #+#              #
-#    Updated: 2015/04/20 17:21:13 by jaguillo         ###   ########.fr        #
+#    Updated: 2015/04/20 18:13:24 by jaguillo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,32 +29,36 @@ class Polynom():
 	x = False
 	power = 0
 
-	def __init__(self, m, sign = None, num = 0, x = False, power = 0):
+	def __init__(self, m, sign = None, num = 0, x = False, power = 1):
 		self.sign = sign
 		self.num = num
 		self.x = x
 		self.power = power
-		if m == None:
-			return
-		if len(m.group(1)) > 0:
-			self.sign = m.group(1)
-			if self.sign == '=':
-				raise
-		if m.group(2) == None:
-			self.num = 1.0
-		else:
-			self.num = float(m.group(2))
-		if m.group(3) != None:
-			self.x = True
-			if m.group(4) != None:
-				self.power = int(m.group(4))
+		if m != None:
+			if len(m.group(1)) > 0:
+				self.sign = m.group(1)
+				if self.sign == '=':
+					raise
+			if m.group(2) == None:
+				self.num = 1.0
+			else:
+				self.num = float(m.group(2))
+			if m.group(3) != None:
+				self.x = True
+				if m.group(4) != None:
+					self.power = int(m.group(4))
+		if self.num < 0.0:
+			self.sign = "+" if self.sign == "-" else "-"
+			self.num = -self.num
+		if self.x and self.power == 0:
+			self.x = False
 
 	def toString(self):
 		s = ""
 		if self.sign != None:
 			s += self.sign
 			s += " "
-		if self.x and self.num == 1:
+		if self.x and (self.num == 1 or self.num == -1):
 			s += "X^%d" % (self.power)
 		elif self.x:
 			s += "(%s * X^%d)" % (str(self.num), self.power)
@@ -65,6 +69,7 @@ class Polynom():
 
 reg_polynom = compile('([-+=]?)\s*([0-9\.]+)?(\s*\*?\s*[xX](?:\^([0-9]+))?)?\s*')
 reg_space = compile('\s+')
+
 
 class Computer():
 
@@ -109,7 +114,40 @@ class Computer():
 			self.left.append(Polynom(None))
 		if len(self.right) == 0:
 			self.right.append(Polynom(None))
-		s = "Parsing -> "
+		print("Equation: " + self.toString())
+		return True
+
+	def reduce(self):
+		tmp = {}
+		for p in self.left:
+			if not p.power in tmp:
+				tmp[p.power] = 0
+			tmp[p.power] += p.num if p.sign != "-" else -p.num
+		for p in self.right:
+			if not p.power in tmp:
+				tmp[p.power] = 0
+			tmp[p.power] -= p.num if p.sign != "-" else -p.num
+		self.left = []
+		for power in sorted(tmp):
+			if tmp[power] != 0:
+				self.left.append(Polynom(None, "+" if len(self.left) > 0 else None, tmp[power], True, power))
+		self.right = [Polynom(None)]
+		print("Reduced form: " + self.toString())
+		return True
+
+	def resolve(self):
+		degree = 0
+		for p in self.left:
+			if p.power > degree:
+				degree = p.power
+		print("Polynomial degree: %d" % degree)
+		if degree > 2:
+			print("The polynomial degree is stricly greater than 2, I can't solve.")
+			return False
+		return True
+
+	def toString(self):
+		s = ""
 		for p in self.left:
 			s += p.toString()
 			s += " "
@@ -117,14 +155,7 @@ class Computer():
 		for p in self.right:
 			s += " "
 			s += p.toString()
-		print(s)
-		return True
-
-	def reduce(self):
-		return False
-
-	def resolve(self):
-		return False
+		return s
 
 
 if len(argv) <= 1:
