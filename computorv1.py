@@ -7,7 +7,7 @@
 #    By: jaguillo <jaguillo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/04/20 15:46:41 by jaguillo          #+#    #+#              #
-#    Updated: 2015/04/20 18:13:24 by jaguillo         ###   ########.fr        #
+#    Updated: 2015/04/20 18:35:49 by jaguillo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ class Polynom():
 	x = False
 	power = 0
 
-	def __init__(self, m, sign = None, num = 0, x = False, power = 1):
+	def __init__(self, m, sign = None, num = 0.0, x = False, power = 0):
 		self.sign = sign
 		self.num = num
 		self.x = x
@@ -47,6 +47,8 @@ class Polynom():
 				self.x = True
 				if m.group(4) != None:
 					self.power = int(m.group(4))
+				else:
+					self.power = 1
 		if self.num < 0.0:
 			self.sign = "+" if self.sign == "-" else "-"
 			self.num = -self.num
@@ -58,10 +60,16 @@ class Polynom():
 		if self.sign != None:
 			s += self.sign
 			s += " "
-		if self.x and (self.num == 1 or self.num == -1):
-			s += "X^%d" % (self.power)
-		elif self.x:
-			s += "(%s * X^%d)" % (str(self.num), self.power)
+		if self.x and (self.num == 1 or self.num == -1) and self.power != 0:
+			if self.power == 1:
+				s += "X"
+			else:
+				s += "X^%d" % (self.power)
+		elif self.x and self.num != 0 and self.power != 0:
+			if self.power == 1:
+				s += "%sX" % str(self.num)
+			else:
+				s += "%sX^%d" % (str(self.num), self.power)
 		else:
 			s += str(self.num)
 		return s
@@ -86,7 +94,7 @@ class Computer():
 		pos = 0
 		left = True
 		while pos < len(self.eq):
-			if self.eq[pos:pos+1] == "=" and left and len(self.left) > 0:
+			if self.eq[pos:pos + 1] == "=" and left and len(self.left) > 0:
 				left = False
 				pos += 1
 			m = reg_space.match(self.eq, pos)
@@ -95,12 +103,12 @@ class Computer():
 				continue
 			m = reg_polynom.match(self.eq, pos)
 			if m == None or len(m.group(0)) <= 0:
-				print("Unexpected syntax: '%s'" % (self.eq[pos:]))
+				print("Unexpected syntax: '%s'" % (self.eq[pos:pos + 5]))
 				return False
 			try:
 				p = Polynom(m)
 			except:
-				print("Invalid syntax: '%s'" % (self.eq[pos:]))
+				print("Invalid syntax: '%s'" % (self.eq[pos:pos + 5]))
 				return False
 			if left:
 				self.left.append(p)
@@ -121,17 +129,19 @@ class Computer():
 		tmp = {}
 		for p in self.left:
 			if not p.power in tmp:
-				tmp[p.power] = 0
+				tmp[p.power] = 0.0
 			tmp[p.power] += p.num if p.sign != "-" else -p.num
 		for p in self.right:
 			if not p.power in tmp:
-				tmp[p.power] = 0
+				tmp[p.power] = 0.0
 			tmp[p.power] -= p.num if p.sign != "-" else -p.num
 		self.left = []
 		for power in sorted(tmp):
 			if tmp[power] != 0:
 				self.left.append(Polynom(None, "+" if len(self.left) > 0 else None, tmp[power], True, power))
 		self.right = [Polynom(None)]
+		if len(self.left) == 0:
+			self.left.append(Polynom(None))
 		print("Reduced form: " + self.toString())
 		return True
 
